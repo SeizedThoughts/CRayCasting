@@ -1,4 +1,4 @@
-#include "Graphics/lib.h"
+#include "libs/Graphics/lib.h"
 #define PI 3.14159265
 
 int main(void){
@@ -10,9 +10,9 @@ int main(void){
     Renderer *renderers = malloc(1 * sizeof(Renderer));
     Renderer renderer;
 
-    renderer.model = modelFromFile();
+    renderer.model = modelFromFile("assets/models/cube/");
     renderer.transform = *newTransform(0, 0, 0, 0, PI/3, PI / 4);
-    renderer.scalar = *newVector3D(1, 2, 1);
+    renderer.scalar = *newVector3D(1, 1, 1);
     renderer.textures = newTextures(textures, 12);
 
     renderers[0] = renderer;
@@ -22,13 +22,13 @@ int main(void){
     freeCamera(camera);
     // freeModel(model);
 
-    Vector3D vert = renderer.model->verticies[0];
-    for(int i = 0; i < renderer.model->vertexCount; vert = renderer.model->verticies[++i]){
-        printf("pre %d: ", i);
-        printVector3D(vert);
-        printf("post %d: ", i);
-        printVector3D(translate(vert, renderer.transform));
-    }
+    // Vector3D vert = renderer.model->verticies[0];
+    // for(int i = 0; i < renderer.model->vertexCount; vert = renderer.model->verticies[++i]){
+    //     printf("pre %d: ", i);
+    //     printVector3D(vert);
+    //     printf("post %d: ", i);
+    //     printVector3D(translate(vert, renderer.transform));
+    // }
 
     return 0;
 }

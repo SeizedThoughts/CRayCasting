@@ -1,5 +1,25 @@
 #include "util/strcpy.h"
 
+//Color
+
+typedef struct {
+    unsigned int r;
+    unsigned int g;
+    unsigned int b;
+    unsigned int w;
+} Color;
+
+Color *newColor(unsigned int r, unsigned int g, unsigned int b, unsigned int w){
+    Color *color = malloc(1 * sizeof(color));
+
+    color->r = r;
+    color->g = g;
+    color->b = b;
+    color->w = w;
+
+    return color;
+}
+
 //Transform
 
 typedef struct {
@@ -22,20 +42,34 @@ void freeTransform(Transform *transform){
     free(transform);
 }
 
+//Frame
+
+typedef struct {
+    unsigned int width, height;
+    Color *pixels;
+} Frame;
+
+Frame *newFrame(unsigned int width, unsigned int height){
+    Frame *newFrame = malloc(1 * sizeof(Frame));
+
+    newFrame->width = width;
+    newFrame->height = height;
+    newFrame->pixels = malloc(width * height * sizeof(Color));
+
+    return newFrame;
+}
+
 //Camera
 
 typedef struct {
     Transform *transform;
-    unsigned int width, height;
     double xFov, yFov;
 } Camera;
 
-Camera *newCamera(double xPos, double yPos, double zPos, double xTurn, double yTurn, double zTurn, unsigned int width, unsigned int height, double xFov, double yFov){
+Camera *newCamera(double xPos, double yPos, double zPos, double xTurn, double yTurn, double zTurn, double xFov, double yFov){
     Camera *newCamera = malloc(1 * sizeof(Camera));
 
     newCamera->transform = newTransform(xPos, yPos, zPos, xTurn, yTurn, zTurn);
-    newCamera->width = width;
-    newCamera->height = height;
     newCamera->xFov = xFov;
     newCamera->yFov = yFov;
 
@@ -161,3 +195,28 @@ void freeModel(Model *model){
 
     free(model);
 }
+
+//Textures
+
+typedef struct {
+    Color *textures;
+    unsigned int faceCount;
+} Textures;
+
+Textures newTextures(Color *colors, unsigned int textureCount){
+    Textures textures;
+
+    textures.textures = colors;
+    textures.faceCount = textureCount;
+
+    return textures;
+}
+
+//Renderer
+
+typedef struct {
+    Model *model;
+    Transform transform;
+    Vector3D scalar;
+    Textures textures;
+} Renderer;

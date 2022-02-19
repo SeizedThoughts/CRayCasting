@@ -5,27 +5,6 @@
 
 #include "classes.h"
 
-typedef struct {
-    char *textures;
-    unsigned int faceCount;
-} Textures;
-
-typedef struct {
-    Model *model;
-    Transform transform;
-    Vector3D scalar;
-    Textures textures;
-} Renderer;
-
-Textures newTextures(char *textureValues, unsigned int textureCount){
-    Textures textures;
-
-    textures.textures = textureValues;
-    textures.faceCount = textureCount;
-
-    return textures;
-}
-
 Vector3D scale(Vector3D vector, Vector3D scalar){
     Vector3D scaled;
     
@@ -91,9 +70,9 @@ double dist(Vector3D p1, Vector3D p2, Vector3D p3, Vector3D ray){
     return scalar;
 }
 
-char castRay(Vector3D position, Vector3D ray, Renderer *renderers, unsigned int rendererCount){
+Color castRay(Vector3D position, Vector3D ray, Renderer *renderers, unsigned int rendererCount){
     double pickDist = -1;
-    char color = '.';
+    Color color = *newColor(0, 0, 0, 0);
     Renderer renderer = renderers[0];
     Face face = renderer.model->faces[0];
     for(int i = 0; i < rendererCount; renderer = renderers[++i]){
@@ -114,7 +93,7 @@ char castRay(Vector3D position, Vector3D ray, Renderer *renderers, unsigned int 
     return color;
 }
 
-void render(Camera *camera, Renderer *renderers, unsigned int rendererCount){
+void render(Camera *camera, Renderer *renderers, unsigned int rendererCount, Frame *frame){
     EulerAngle helperAngle;
     helperAngle.x = PI / 2.0;
     helperAngle.y = 0;
@@ -139,21 +118,19 @@ void render(Camera *camera, Renderer *renderers, unsigned int rendererCount){
     Vector3D tr = sumVector3Ds(viewplane, differenceVector3Ds(screenRight, screenBottom));
     Vector3D bl = sumVector3Ds(viewplane, differenceVector3Ds(screenBottom, screenRight));
 
-    Vector3D downInc = crossProductScalarVector3D(1 / (double) camera->height, differenceVector3Ds(bl, ray));
-    Vector3D rightInc = crossProductScalarVector3D(1 / (double) camera->width, differenceVector3Ds(tr, ray));
+    Vector3D downInc = crossProductScalarVector3D(1 / (double) frame->height, differenceVector3Ds(bl, ray));
+    Vector3D rightInc = crossProductScalarVector3D(1 / (double) frame->width, differenceVector3Ds(tr, ray));
     
     int x, y;
-    for(y = 0; y < camera->height; y++){
+    for(y = 0; y < frame->height; y++){
         ray = sumVector3Ds(ray, downInc);
-        for(x = 0; x < camera->width; x++){
+        for(x = 0; x < frame->width; x++){
             ray = sumVector3Ds(ray, rightInc);
 
-            char point = castRay(*(camera->transform->position), ray, renderers, rendererCount);
+            Color point = castRay(*(camera->transform->position), ray, renderers, rendererCount);
 
-            printf("%c", point);
-            printf("%c", point);
+            frame->pixels[frame->width * y + x] = point;
         }
-        printf("\n");
-        ray = differenceVector3Ds(ray, crossProductScalarVector3D(camera->width, rightInc));
+        ray = differenceVector3Ds(ray, crossProductScalarVector3D(frame->width, rightInc));
     }
 }
